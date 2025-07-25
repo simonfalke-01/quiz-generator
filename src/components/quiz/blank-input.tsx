@@ -123,7 +123,7 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
             ref={ref}
             type="text"
             className={cn(
-              `w-32 sm:w-40 h-9 ${hint ? 'pl-6' : 'pl-3'} pr-3 py-2 text-sm border rounded-md bg-background transition-all duration-300 outline-none`,
+              `w-36 sm:w-40 h-10 md:h-9 ${hint ? 'pl-6' : 'pl-3'} pr-3 py-2 text-sm md:text-base border rounded-md bg-background transition-all duration-300 outline-none`,
               {
                 "border-input focus:ring-2 focus:ring-ring focus:border-ring": validationStatus === "unchecked",
                 "border-success bg-success/10 focus:ring-2 focus:ring-success": validationStatus === "correct",
@@ -135,18 +135,25 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
             readOnly={isRevealed}
             onChange={handleInputChange}
             aria-label={hint ? `Fill in the blank, starts with ${hint}` : "Fill in the blank"}
+            inputMode="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
             {...props}
           />
         </div>
         
-        {/* Hover-to-reveal answer button */}
+        {/* Touch/Hover-to-reveal answer button */}
         <button
           type="button"
           onMouseEnter={() => setIsRevealed(true)}
           onMouseLeave={() => setIsRevealed(false)}
+          onTouchStart={() => setIsRevealed(true)}
+          onTouchEnd={() => setIsRevealed(false)}
           tabIndex={-1}
-          className="w-6 h-6 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center text-xs text-secondary-foreground hover:text-secondary-foreground/80 transition-colors"
-          aria-label="Hover to show correct answer"
+          className="w-7 h-7 md:w-6 md:h-6 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/80 flex items-center justify-center text-xs text-secondary-foreground hover:text-secondary-foreground/80 transition-colors touch-manipulation"
+          aria-label="Touch/hover to show correct answer"
         >
           ?
         </button>

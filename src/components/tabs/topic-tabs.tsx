@@ -39,28 +39,28 @@ export function TopicTabs({ topicData, topicId }: TopicTabsProps) {
     <div className="h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <Link href="/" className="text-lg font-semibold text-foreground hover:text-foreground/80 transition-colors cursor-pointer">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4">
+          <Link href="/" className="text-base md:text-lg font-semibold text-foreground hover:text-foreground/80 transition-colors cursor-pointer">
             Quiz Generator
           </Link>
         </div>
       </header>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
         {/* Tab Header */}
-        <div className="sticky top-[72px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
-          <div className="max-w-6xl mx-auto px-6 py-4">
-            <div className="mb-4 flex items-start justify-between">
+        <div className="sticky top-[60px] md:top-[72px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4">
+            <div className="mb-3 md:mb-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">
                   {topicData.title}
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm md:text-base">
                   {topicData.description}
                 </p>
               </div>
               
               {/* Topic Code Display */}
-              <div className="flex items-center space-x-2 ml-6">
+              <div className="flex items-center space-x-2 sm:ml-6 self-start sm:self-auto">
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">Topic Code</div>
                   <code className="text-sm font-mono font-bold text-foreground">
@@ -82,13 +82,13 @@ export function TopicTabs({ topicData, topicId }: TopicTabsProps) {
               </div>
             </div>
             
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="quiz" className="flex items-center space-x-2">
-                <BookOpen className="h-4 w-4" />
+            <TabsList className="grid w-full max-w-md grid-cols-2 h-10 md:h-11">
+              <TabsTrigger value="quiz" className="flex items-center space-x-1.5 md:space-x-2 text-sm">
+                <BookOpen className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 <span>Quiz</span>
               </TabsTrigger>
-              <TabsTrigger value="chat" className="flex items-center space-x-2">
-                <MessageCircle className="h-4 w-4" />
+              <TabsTrigger value="chat" className="flex items-center space-x-1.5 md:space-x-2 text-sm">
+                <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 <span>AI Chat</span>
               </TabsTrigger>
             </TabsList>
@@ -102,7 +102,7 @@ export function TopicTabs({ topicData, topicId }: TopicTabsProps) {
           </TabsContent>
 
           <TabsContent value="chat" className="mt-0 focus-visible:outline-none h-full">
-            <div className="h-full max-w-6xl mx-auto p-6">
+            <div className="h-full max-w-6xl mx-auto p-4 md:p-6">
               <ChatClient topicId={topicId} topicTitle={topicData.title} />
             </div>
           </TabsContent>

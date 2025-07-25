@@ -6,6 +6,9 @@
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
   
+  /* Mobile-first breakpoints */
+  --breakpoint-xs: 32rem;  /* 512px - smaller mobile devices */
+  
   /* Radius values */
   --radius-sm: calc(0.625rem - 4px);
   --radius-md: calc(0.625rem - 2px);

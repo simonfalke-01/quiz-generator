@@ -99,17 +99,17 @@ export function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8 flex flex-col">
-      <div className="w-full px-6 flex-grow max-w-none">
-        <div className="flex gap-12 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background py-4 md:py-8 flex flex-col">
+      <div className="w-full px-4 md:px-6 flex-grow max-w-none">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 max-w-7xl mx-auto">
           {/* Main Content */}
           <div className="flex-1 max-w-3xl">
             {/* Header */}
-            <div className="mb-12 text-left">
-              <h1 className="text-4xl font-bold text-foreground mb-4">
+            <div className="mb-8 md:mb-12 text-left">
+              <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-3 md:mb-4">
                 Quiz Generator
               </h1>
-              <p className="text-xl text-muted-foreground mb-2">
+              <p className="text-lg md:text-xl text-muted-foreground mb-2">
                 Upload your study materials and create interactive quizzes instantly
               </p>
               <p className="text-sm text-muted-foreground">
@@ -129,9 +129,9 @@ export function UploadPage() {
             {step === "select" && (
               <div className="space-y-6">
                 {/* Upload Header with Question Count */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-semibold text-foreground">
+                    <h2 className="text-xl md:text-2xl font-semibold text-foreground">
                       Upload your documents
                     </h2>
                     <p className="text-muted-foreground">
@@ -139,7 +139,7 @@ export function UploadPage() {
                     </p>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 sm:flex-shrink-0">
                     <Label htmlFor="question-count" className="text-sm font-medium whitespace-nowrap">
                       Questions:
                     </Label>
@@ -151,7 +151,8 @@ export function UploadPage() {
                       value={questionCountInput}
                       onChange={handleQuestionCountChange}
                       onBlur={handleQuestionCountBlur}
-                      className="w-20"
+                      className="w-20 h-10"
+                      inputMode="numeric"
                     />
                   </div>
                 </div>
@@ -170,7 +171,7 @@ export function UploadPage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={files.length === 0}
-                  className="w-full"
+                  className="w-full h-12"
                   size="lg"
                 >
                   Generate Quiz ({questionCount} questions)
@@ -232,7 +233,7 @@ export function UploadPage() {
           </div>
 
           {/* Recent Topics Sidebar */}
-          <div className="flex-1 max-w-sm">
+          <div className="w-full lg:flex-1 lg:max-w-sm">
             <RecentTopics
               topics={recentTopics}
               onRemoveTopic={removeTopic}
@@ -243,7 +244,7 @@ export function UploadPage() {
       </div>
 
       {/* Footer */}
-      <div className="w-full px-6 mt-auto pt-16 max-w-7xl mx-auto">
+      <div className="w-full px-4 md:px-6 mt-auto pt-8 md:pt-16 max-w-7xl mx-auto">
         <div className="text-center text-sm text-muted-foreground">
           <p>
             Your documents are processed securely and used only for quiz generation.

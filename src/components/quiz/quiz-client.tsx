@@ -70,33 +70,33 @@ export function QuizClient({ topicData, topicId }: QuizClientProps) {
   return (
     <div className="h-full flex flex-col">
       {/* Sticky Progress and Navigation Section */}
-      <div className="sticky top-[140px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="max-w-6xl mx-auto w-full px-6 py-4">
+      <div className="sticky top-[120px] md:top-[140px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="max-w-6xl mx-auto w-full px-4 md:px-6 py-3 md:py-4">
           {/* Progress Section */}
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-foreground">
+          <div className="mb-3 md:mb-4">
+            <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center mb-2 gap-1">
+              <span className="text-xs md:text-sm font-medium text-foreground">
                 Progress: {answeredBlanks} / {totalBlanks} blanks completed
               </span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs md:text-sm text-muted-foreground">
                 {Math.round(progressPercentage)}%
               </span>
             </div>
-            <Progress value={progressPercentage} className="w-full" />
+            <Progress value={progressPercentage} className="w-full h-2" />
           </div>
 
           {/* Section Navigation */}
-          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+          <div className="flex flex-wrap gap-1.5 md:gap-2 justify-center sm:justify-start">
             {topicData.sections.map((section, index) => (
               <Button
                 key={section.id}
                 onClick={() => updateSectionIndex(index)}
                 variant={index === currentSectionIndex ? "default" : "outline"}
                 size="sm"
-                className={`transition-all duration-200 ${
+                className={`transition-all duration-200 h-8 md:h-9 text-xs md:text-sm ${
                   index === currentSectionIndex 
-                    ? 'min-w-[80px] px-3' 
-                    : 'min-w-[36px] px-2'
+                    ? 'min-w-[72px] md:min-w-[80px] px-2 md:px-3' 
+                    : 'min-w-[32px] md:min-w-[36px] px-1.5 md:px-2'
                 }`}
               >
                 {index === currentSectionIndex ? `Section ${index + 1}` : index + 1}
@@ -108,13 +108,13 @@ export function QuizClient({ topicData, topicId }: QuizClientProps) {
 
       {/* Scrollable Content */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="max-w-6xl mx-auto w-full px-6 py-6">
-          <div className="mb-3">
-            <h2 className="text-xl font-semibold">
+        <div className="max-w-6xl mx-auto w-full px-4 md:px-6 py-4 md:py-6">
+          <div className="mb-3 md:mb-4">
+            <h2 className="text-lg md:text-xl font-semibold">
               {currentSection.title}
             </h2>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3 md:space-y-4">
             {currentSection.questions.map(question => (
               <Question
                 key={question.id}
@@ -132,13 +132,14 @@ export function QuizClient({ topicData, topicId }: QuizClientProps) {
 
       {/* Navigation */}
       <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
-        <div className="max-w-6xl mx-auto w-full p-6">
+        <div className="max-w-6xl mx-auto w-full p-4 md:p-6">
           <div className="flex flex-col sm:flex-row gap-3 sm:justify-between">
           <Button
             onClick={() => updateSectionIndex(Math.max(0, currentSectionIndex - 1))}
             disabled={currentSectionIndex === 0}
             variant="outline"
             size="lg"
+            className="h-12 text-sm md:text-base"
           >
             ← Previous Section
           </Button>
@@ -147,6 +148,7 @@ export function QuizClient({ topicData, topicId }: QuizClientProps) {
             onClick={() => updateSectionIndex(Math.min(topicData.sections.length - 1, currentSectionIndex + 1))}
             disabled={currentSectionIndex === topicData.sections.length - 1}
             size="lg"
+            className="h-12 text-sm md:text-base"
           >
             Next Section →
           </Button>
