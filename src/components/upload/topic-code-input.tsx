@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Copy, ExternalLink, AlertCircle } from 'lucide-react'
+import { Copy, ExternalLink, AlertCircle, Check } from 'lucide-react'
 
 interface TopicCodeInputProps {
   generatedTopicCode?: string
@@ -103,7 +103,11 @@ export function TopicCodeInput({ generatedTopicCode, onTopicCodeEnter }: TopicCo
                   onClick={handleCopyCode}
                   className="border-green-300 text-green-700 hover:bg-green-100 flex-shrink-0 w-12 h-12 p-0"
                 >
-                  {copySuccess ? 'Copied!' : <Copy className="h-4 w-4" />}
+                  {copySuccess ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>

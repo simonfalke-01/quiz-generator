@@ -3,7 +3,7 @@ export class FileValidator {
    * Validate file before processing
    */
   static validateFile(file: File): { valid: boolean; error?: string } {
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 30 * 1024 * 1024; // 30MB
     const allowedTypes = [
       "application/pdf",
       "text/plain",
@@ -14,7 +14,7 @@ export class FileValidator {
     ];
 
     if (file.size > maxSize) {
-      return { valid: false, error: "File size exceeds 10MB limit" };
+      return { valid: false, error: "File size exceeds 30MB limit" };
     }
 
     const fileExtension = file.name.toLowerCase().split(".").pop();

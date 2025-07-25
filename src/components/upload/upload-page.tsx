@@ -4,122 +4,98 @@ import { useState } from "react";
 import { FileUpload } from "./file-upload";
 import { BQCGenerator } from "./bqc-generator";
 import { TopicCodeInput } from "./topic-code-input";
-import { FileValidator } from "@/lib/file-validation";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { RecentTopics } from "@/components/recent-topics";
 import { useRecentTopics } from "@/hooks/use-recent-topics";
 
 type UploadStep = "select" | "uploading" | "generating" | "complete" | "error";
 
-interface UploadState {
-  step: UploadStep;
-  file: File | null;
-  blobUrl: string | null;
-  fileKey: string | null;
-  uploadProgress: number;
-  error: string | null;
-  generatedTopicCode: string | null;
-}
-
 export function UploadPage() {
-  const { recentTopics, addTopic, removeTopic, clearTopics } = useRecentTopics()
-  const [uploadState, setUploadState] = useState<UploadState>({
-    step: "select",
-    file: null,
-    blobUrl: null,
-    fileKey: null,
-    uploadProgress: 0,
-    error: null,
-    generatedTopicCode: null,
-  });
+  const { recentTopics, removeTopic, clearTopics } = useRecentTopics();
+  
+  const [step, setStep] = useState<UploadStep>("select");
+  const [files, setFiles] = useState<File[]>([]);
+  const [questionCount, setQuestionCount] = useState(100);
+  const [questionCountInput, setQuestionCountInput] = useState("100");
+  const [generatedTopicCode, setGeneratedTopicCode] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-
-  const handleFileSelect = async (file: File) => {
-    // Validate file
-    const validation = FileValidator.validateFile(file);
-    if (!validation.valid) {
-      setUploadState((prev) => ({
-        ...prev,
-        error: validation.error || "Invalid file",
-        step: "error",
-      }));
+  const handleSubmit = async () => {
+    if (files.length === 0) {
+      setError("Please select at least one file");
       return;
     }
 
-    setUploadState((prev) => ({
-      ...prev,
-      file,
-      step: "uploading",
-      error: null,
-      uploadProgress: 0,
-    }));
+    setStep("uploading");
+    setError(null);
 
     try {
-      // Upload file to Vercel Blob
       const formData = new FormData();
-      formData.append("file", file);
+      
+      // Add all files with the same key name
+      files.forEach(file => {
+        formData.append('files', file);
+      });
+      
+      formData.append('questionCount', questionCount.toString());
 
-      const uploadResponse = await fetch("/api/upload", {
-        method: "POST",
+      const response = await fetch('/api/generate-quiz', {
+        method: 'POST',
         body: formData,
       });
 
-      if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error || "Upload failed");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
       }
 
-      const uploadResult = await uploadResponse.json();
-
-      setUploadState((prev) => ({
-        ...prev,
-        blobUrl: uploadResult.file.url,
-        fileKey: uploadResult.file.key,
-        uploadProgress: 100,
-        step: "generating",
-      }));
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Upload failed";
-      setUploadState((prev) => ({
-        ...prev,
-        error: errorMessage,
-        step: "error",
-      }));
+      // API returns topicId immediately
+      const result = await response.json();
+      setGeneratedTopicCode(result.topicId);
+      setStep("generating");
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Upload failed";
+      setError(errorMessage);
+      setStep("error");
     }
   };
 
-  const handleGenerationSuccess = (topicCode: string) => {
-    setUploadState((prev) => ({
-      ...prev,
-      generatedTopicCode: topicCode,
-      step: "complete",
-    }));
-  };
-
-  const handleGenerationError = (error: string) => {
-    setUploadState((prev) => ({
-      ...prev,
-      error,
-      step: "error",
-    }));
-  };
-
   const handleStartOver = () => {
-    setUploadState({
-      step: "select",
-      file: null,
-      blobUrl: null,
-      fileKey: null,
-      uploadProgress: 0,
-      error: null,
-      generatedTopicCode: null,
-    });
+    setStep("select");
+    setFiles([]);
+    setQuestionCount(100);
+    setQuestionCountInput("100");
+    setGeneratedTopicCode(null);
+    setError(null);
   };
 
   const handleTopicCodeEnter = (code: string) => {
-    // This will be handled by the TopicCodeInput component's navigation
     console.log("Entering topic with code:", code);
+  };
+
+  const handleQuestionCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    setQuestionCountInput(input);
+    
+    // Update the actual value if it's a valid number
+    const value = parseInt(input);
+    if (!isNaN(value) && value >= 10 && value <= 500) {
+      setQuestionCount(value);
+    }
+  };
+
+  const handleQuestionCountBlur = () => {
+    const value = parseInt(questionCountInput);
+    if (isNaN(value) || value < 10) {
+      setQuestionCount(100);
+      setQuestionCountInput("100");
+    } else if (value > 500) {
+      setQuestionCount(500);
+      setQuestionCountInput("500");
+    }
   };
 
   return (
@@ -141,94 +117,118 @@ export function UploadPage() {
               </p>
             </div>
 
-            {/* Topic Code Input (Always visible at top) */}
-            <div className="mb-12 w-full">
+            {/* Topic Code Input */}
+            <div className="mb-8 w-full">
               <TopicCodeInput
-                generatedTopicCode={uploadState.generatedTopicCode || undefined}
+                generatedTopicCode={step === "complete" ? generatedTopicCode || undefined : undefined}
                 onTopicCodeEnter={handleTopicCodeEnter}
               />
             </div>
 
-            {/* Main Content Area */}
-            <div className="space-y-8 w-full">
-          {/* File Upload Section */}
-          {(uploadState.step === "select" || uploadState.step === "error") && (
-            <div className="space-y-6 w-full">
-              <div className="text-left">
-                <h2 className="text-2xl font-semibold text-foreground mb-3">
-                  Create New Quiz
-                </h2>
-                <p className="text-muted-foreground">
-                  Upload your document to generate an interactive quiz
-                </p>
-              </div>
-
-              <div className="w-full">
-                <FileUpload
-                  onFileSelect={handleFileSelect}
-                  error={uploadState.error || undefined}
-                />
-              </div>
-
-              {uploadState.step === "error" && (
-                <div className="text-left">
-                  <Button onClick={handleStartOver} variant="link" size="sm">
-                    Try uploading a different file
-                  </Button>
+            {/* Upload Form */}
+            {step === "select" && (
+              <div className="space-y-6">
+                {/* Upload Header with Question Count */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-foreground">
+                      Upload your documents
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Generate an interactive quiz from your study materials
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="question-count" className="text-sm font-medium whitespace-nowrap">
+                      Questions:
+                    </Label>
+                    <Input
+                      id="question-count"
+                      type="number"
+                      min="10"
+                      max="500"
+                      value={questionCountInput}
+                      onChange={handleQuestionCountChange}
+                      onBlur={handleQuestionCountBlur}
+                      className="w-20"
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* Upload Progress */}
-          {uploadState.step === "uploading" && uploadState.file && (
-            <div className="w-full">
-              <FileUpload
-                onFileSelect={() => {}} // Not needed during upload
-                isUploading={true}
-                uploadProgress={uploadState.uploadProgress}
-              />
-            </div>
-          )}
-
-          {/* BQC Generation */}
-          {uploadState.step === "generating" &&
-            (uploadState.blobUrl || uploadState.fileKey) &&
-            uploadState.file && (
-              <div className="w-full">
-                <BQCGenerator
-                  fileUrl={uploadState.blobUrl}
-                  fileKey={uploadState.fileKey}
-                  fileName={uploadState.file.name}
-                  fileType={FileValidator.getFileType(
-                    uploadState.file.name,
-                    uploadState.file.type,
-                  )}
-                  onSuccess={handleGenerationSuccess}
-                  onError={handleGenerationError}
+                <FileUpload
+                  files={files}
+                  onFilesChanged={setFiles}
                 />
+
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                )}
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={files.length === 0}
+                  className="w-full"
+                  size="lg"
+                >
+                  Generate Quiz ({questionCount} questions)
+                </Button>
               </div>
             )}
 
-          {/* Success State */}
-          {uploadState.step === "complete" && (
-            <div className="space-y-4 text-left">
-              <div className="text-green-600">
-                <h3 className="text-xl font-semibold mb-2">
-                  Quiz Generated Successfully!
-                </h3>
-                <p className="text-gray-600">
-                  Your interactive quiz is ready. Use the topic code above to
-                  access it.
+            {/* Uploading State */}
+            {step === "uploading" && (
+              <div className="text-center space-y-4">
+                <h3 className="text-xl font-semibold">Uploading Files...</h3>
+                <p className="text-muted-foreground">
+                  Uploading {files.length} file{files.length > 1 ? 's' : ''} and starting quiz generation
                 </p>
               </div>
+            )}
 
-              <Button onClick={handleStartOver} variant="link">
-                Create Another Quiz
-              </Button>
-            </div>
-          )}
-            </div>
+            {/* Generating State */}
+            {step === "generating" && generatedTopicCode && (
+              <BQCGenerator
+                topicId={generatedTopicCode}
+                onSuccess={() => setStep("complete")}
+                onError={(error) => {
+                  setError(error);
+                  setStep("error");
+                }}
+              />
+            )}
+
+            {/* Success State */}
+            {step === "complete" && (
+              <div className="space-y-4 text-center">
+                <div className="text-green-600">
+                  <h3 className="text-xl font-semibold mb-2">
+                    Quiz Generated Successfully!
+                  </h3>
+                  <p className="text-gray-600">
+                    Your interactive quiz with {questionCount} questions is ready. Use the topic code above to access it.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Error State */}
+            {step === "error" && (
+              <div className="space-y-4">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                  <h3 className="text-lg font-semibold text-red-800 mb-2">
+                    Generation Failed
+                  </h3>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+
+                <Button onClick={handleStartOver} variant="outline">
+                  Try Again
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Recent Topics Sidebar */}
@@ -242,12 +242,11 @@ export function UploadPage() {
         </div>
       </div>
 
-      {/* Footer - Now at bottom of page */}
+      {/* Footer */}
       <div className="w-full px-6 mt-auto pt-16 max-w-7xl mx-auto">
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            Your documents are processed securely and used only for quiz
-            generation.
+            Your documents are processed securely and used only for quiz generation.
           </p>
         </div>
       </div>

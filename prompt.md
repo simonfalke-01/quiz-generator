@@ -90,7 +90,7 @@ Prioritize content that typically appears on exams:
 
 ### 4. QUESTION GENERATION GUIDELINES
 
-**Target 100 questions total** organized into logical sections.
+**Target {{QUESTION_COUNT}} questions total** organized into logical sections.
 
 **Question Types to Include:**
 - **Terminology/Definitions**: Fill in key terms and their meanings
@@ -174,7 +174,7 @@ Avoid blanking:
 
 Generate a complete BQC file with:
 1. Proper YAML frontmatter with relevant metadata
-2. Exactly 100 questions organized into logical sections
+2. Exactly {{QUESTION_COUNT}} questions organized into logical sections
 3. Varied question types covering all crucial content
 4. Multiple acceptable answers where appropriate
 5. Helpful placeholder text for context
@@ -225,7 +225,7 @@ slug: sample-topic
 ## Quality Check
 
 Before finalizing, verify:
-- [ ] All 100 questions are present and numbered correctly
+- [ ] All {{QUESTION_COUNT}} questions are present and numbered correctly
 - [ ] Every answer can be found explicitly in the source material
 - [ ] Section organization follows logical content flow
 - [ ] Question difficulty is appropriately distributed

@@ -70,7 +70,7 @@ export function QuizClient({ topicData, topicId }: QuizClientProps) {
   return (
     <div className="h-full flex flex-col">
       {/* Sticky Progress and Navigation Section */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+      <div className="sticky top-[140px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="max-w-6xl mx-auto w-full px-6 py-4">
           {/* Progress Section */}
           <div className="mb-4">

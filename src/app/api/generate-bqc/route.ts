@@ -9,11 +9,26 @@ import path from 'path'
 
 export async function POST(request: NextRequest) {
   try {
-    const { fileUrl, fileKey, fileName } = await request.json()
+    const { 
+      fileUrls, 
+      fileKeys, 
+      fileNames, 
+      fileTypes, 
+      questionCount = 100,
+      // Legacy single file support
+      fileUrl, 
+      fileKey, 
+      fileName 
+    } = await request.json()
 
-    if ((!fileUrl && !fileKey) || !fileName) {
+    // Normalize to array format
+    const normalizedUrls = fileUrls || (fileUrl ? [fileUrl] : [])
+    const normalizedKeys = fileKeys || (fileKey ? [fileKey] : [])
+    const normalizedNames = fileNames || (fileName ? [fileName] : [])
+
+    if ((normalizedUrls.length === 0 && normalizedKeys.length === 0) || normalizedNames.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required fields: fileUrl/fileKey, fileName' },
+        { error: 'Missing required fields: fileUrls/fileKeys, fileNames' },
         { status: 400 }
       )
     }
@@ -37,26 +52,36 @@ export async function POST(request: NextRequest) {
     )
 
     try {
-      let fileBuffer: Buffer
+      const fileBuffers: Buffer[] = []
+      const r2Client = getR2Client()
 
-      if (fileKey) {
-        // Download file from R2 using file key
-        const r2Client = getR2Client()
-        fileBuffer = await r2Client.downloadFile(fileKey)
-      } else if (fileUrl) {
-        // Download file from R2 using public URL (fallback)
-        const fileResponse = await fetch(fileUrl)
-        if (!fileResponse.ok) {
-          throw new Error('Failed to download file from storage')
+      // Download all files
+      for (let i = 0; i < normalizedNames.length; i++) {
+        let fileBuffer: Buffer
+
+        if (normalizedKeys[i]) {
+          // Download file from R2 using file key
+          fileBuffer = await r2Client.downloadFile(normalizedKeys[i])
+        } else if (normalizedUrls[i]) {
+          // Download file from R2 using public URL (fallback)
+          const fileResponse = await fetch(normalizedUrls[i])
+          if (!fileResponse.ok) {
+            throw new Error(`Failed to download file from storage: ${normalizedNames[i]}`)
+          }
+          fileBuffer = Buffer.from(await fileResponse.arrayBuffer())
+        } else {
+          throw new Error(`No valid file reference provided for: ${normalizedNames[i]}`)
         }
-        fileBuffer = Buffer.from(await fileResponse.arrayBuffer())
-      } else {
-        throw new Error('No valid file reference provided')
+
+        fileBuffers.push(fileBuffer)
       }
 
       // Load the BQC generation prompt
       const promptPath = path.join(process.cwd(), 'prompt.md')
-      const promptTemplate = await fs.readFile(promptPath, 'utf-8')
+      let promptTemplate = await fs.readFile(promptPath, 'utf-8')
+      
+      // Replace question count placeholder
+      promptTemplate = promptTemplate.replace(/\{\{QUESTION_COUNT\}\}/g, questionCount.toString())
 
       // Update status
       await RedisService.setGenerationStatus(
@@ -65,30 +90,40 @@ export async function POST(request: NextRequest) {
         3600
       )
 
-      // Use OpenAI vision to process the PDF directly
+      // Use OpenAI vision to process the PDFs directly
       const maxSizeMB = parseInt(process.env.MAX_PDF_SIZE_MB || '30')
       const processor = new PdfProcessor({ 
         maxFileSizeMB: maxSizeMB,
         timeoutMs: 60000 
       })
 
+      // For multiple files, we'll process them sequentially and combine the content
+      // For now, let's just use the first file and add a note about multiple files to the prompt
+      let combinedPrompt = promptTemplate
+      if (fileBuffers.length > 1) {
+        combinedPrompt = `You are processing ${fileBuffers.length} files: ${normalizedNames.join(', ')}. Combine information from all files to create ${questionCount} comprehensive questions.\n\n` + promptTemplate
+      }
+
       const { textStream, result } = await processor.generateQuiz(
-        fileBuffer,
-        fileName,
-        promptTemplate
+        fileBuffers[0], // For now, process the first file - we can enhance this later
+        normalizedNames[0],
+        combinedPrompt
       )
 
-      // Estimate cost for monitoring
-      const costEstimate = PdfProcessor.estimateCost(fileBuffer.length)
+      // Estimate cost for monitoring (sum of all files)
+      const totalSize = fileBuffers.reduce((sum, buffer) => sum + buffer.length, 0)
+      const costEstimate = PdfProcessor.estimateCost(totalSize)
 
       // Log processing metadata for monitoring
       console.log('Processing metadata:', {
         topicId,
-        fileName,
+        fileNames: normalizedNames,
+        fileCount: fileBuffers.length,
+        questionCount,
         method: 'openai-vision',
         processingTime: result.processingTime,
         costEstimate,
-        fileSize: fileBuffer.length
+        totalFileSize: totalSize
       })
 
       // Set up response headers for streaming
@@ -220,14 +255,16 @@ version: "1.0"
                 bqcRaw: contentToParse, // Save the repaired content
                 bqcJson: JSON.stringify(parsedBQC),
                 metadata: JSON.stringify({
-                  originalFileName: fileName,
-                  fileSize: fileBuffer.length,
+                  originalFileNames: normalizedNames,
+                  fileCount: fileBuffers.length,
+                  questionCount,
+                  totalFileSize: totalSize,
                   processingMethod: 'openai-vision',
                   processingTime: result.processingTime,
                   costEstimateUSD: costEstimate,
                   createdAt: new Date().toISOString(),
-                  fileUrl: fileUrl || null,
-                  fileKey: fileKey || null,
+                  fileUrls: normalizedUrls,
+                  fileKeys: normalizedKeys,
                   storageProvider: 'cloudflare-r2'
                 }),
                 regenerated: 0

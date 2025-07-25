@@ -1,17 +1,14 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 
 interface BQCGeneratorProps {
-  fileUrl?: string | null
-  fileKey?: string | null
-  fileName: string
-  fileType: string
-  onSuccess: (topicCode: string) => void
+  topicId: string
+  onSuccess: () => void
   onError: (error: string) => void
 }
 
@@ -20,163 +17,88 @@ interface StreamMessage {
   content?: string
   topicId?: string
   message?: string
-  rawContent?: string
   metadata?: {
     chunkCount?: number
     processingMethod?: string
     costEstimate?: number
+    fileCount?: number
+    questionCount?: number
   }
 }
 
-export function BQCGenerator({ 
-  fileUrl, 
-  fileKey, 
-  fileName, 
-  fileType, 
-  onSuccess, 
-  onError 
-}: BQCGeneratorProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
+export function BQCGenerator({ topicId, onSuccess, onError }: BQCGeneratorProps) {
+  const [isGenerating, setIsGenerating] = useState(true)
   const [generatedContent, setGeneratedContent] = useState('')
   const [progress, setProgress] = useState(0)
-  const [status, setStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle')
+  const [status, setStatus] = useState<'generating' | 'success' | 'error'>('generating')
   const [currentStage, setCurrentStage] = useState<'processing' | 'analyzing' | 'generating' | 'finalizing' | ''>('')
   const [error, setError] = useState('')
+  const [metadata, setMetadata] = useState<{fileCount?: number, questionCount?: number}>({})
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  const startGeneration = useCallback(async () => {
-    setIsGenerating(true)
-    setGeneratedContent('')
-    setProgress(10)
-    setStatus('generating')
-    setError('')
+  useEffect(() => {
+    const monitorGeneration = async () => {
+      abortControllerRef.current = new AbortController()
 
-    // Create abort controller for cancellation
-    abortControllerRef.current = new AbortController()
-
-    try {
-      const response = await fetch('/api/generate-bqc', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          fileUrl,
-          fileKey,
-          fileName,
-          fileType
-        }),
-        signal: abortControllerRef.current.signal
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to start BQC generation')
-      }
-
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error('No response stream available')
-      }
-
-      const decoder = new TextDecoder()
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data: StreamMessage = JSON.parse(line.slice(6))
-              
-              switch (data.type) {
-                case 'processing':
-                  setCurrentStage('processing')
-                  setProgress(15)
-                  break
-                  
-                case 'analyzing':
-                  setCurrentStage('analyzing')
-                  setGeneratedContent(prev => prev + (data.content || ''))
-                  setProgress(30)
-                  break
-                  
-                case 'generating':
-                  setCurrentStage('generating')
-                  setGeneratedContent(prev => prev + (data.content || ''))
-                  setProgress(prev => Math.min(prev + 3, 75))
-                  break
-                  
-                case 'finalizing':
-                  setCurrentStage('finalizing')
-                  setProgress(90)
-                  break
-                
-                case 'success':
-                  setStatus('success')
-                  setProgress(100)
-                  setIsGenerating(false)
-                  if (data.topicId) {
-                    onSuccess(data.topicId)
-                  }
-                  break
-                
-                case 'error':
-                  setStatus('error')
-                  setIsGenerating(false)
-                  const errorMsg = data.message || 'Generation failed'
-                  setError(errorMsg)
-                  onError(errorMsg)
-                  break
-              }
-            } catch (parseError) {
-              console.error('Error parsing stream data:', parseError)
+      try {
+        // Poll Redis for generation status
+        const pollStatus = async () => {
+          const response = await fetch(`/api/topics/${topicId}/status`)
+          if (response.ok) {
+            const statusData = await response.json()
+            
+            if (statusData.status === 'completed') {
+              setProgress(100)
+              setTimeout(() => {
+                setStatus('success')
+                setIsGenerating(false)
+                onSuccess()
+              }, 500)
+              return true
+            } else if (statusData.status === 'failed') {
+              setStatus('error')
+              setIsGenerating(false)
+              const errorMsg = statusData.error || 'Generation failed'
+              setError(errorMsg)
+              onError(errorMsg)
+              return true
             }
           }
+          return false
         }
-      }
 
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        setStatus('idle')
-        setProgress(0)
-      } else {
+        // Poll every 2 seconds
+        const pollInterval = setInterval(async () => {
+          const isDone = await pollStatus()
+          if (isDone) {
+            clearInterval(pollInterval)
+          } else {
+            // Update progress gradually while generating
+            setProgress(prev => Math.min(prev + 2, 90))
+          }
+        }, 2000)
+
+        // Initial status check
+        await pollStatus()
+
+        return () => {
+          clearInterval(pollInterval)
+          if (abortControllerRef.current) {
+            abortControllerRef.current.abort()
+          }
+        }
+
+      } catch (err) {
         setStatus('error')
         const errorMsg = err instanceof Error ? err.message : 'Unknown error occurred'
         setError(errorMsg)
         onError(errorMsg)
-      }
-      setIsGenerating(false)
-    }
-  }, [fileUrl, fileKey, fileName, fileType, onSuccess, onError])
-
-  const cancelGeneration = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    setIsGenerating(false)
-    setStatus('idle')
-    setCurrentStage('')
-    setProgress(0)
-  }
-
-  // Auto-start generation when component mounts
-  useEffect(() => {
-    startGeneration()
-    
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
+        setIsGenerating(false)
       }
     }
-  }, [fileUrl, fileKey, fileName, fileType, startGeneration])
+
+    monitorGeneration()
+  }, [topicId, onSuccess, onError])
 
   const getStatusIcon = () => {
     switch (status) {
@@ -194,24 +116,16 @@ export function BQCGenerator({
   const getStatusText = () => {
     switch (status) {
       case 'generating':
-        switch (currentStage) {
-          case 'processing':
-            return 'Starting AI analysis...'
-          case 'analyzing':
-            return 'Analyzing document content...'
-          case 'generating':
-            return 'Generating quiz questions...'
-          case 'finalizing':
-            return 'Finalizing quiz structure...'
-          default:
-            return 'Processing file...'
-        }
+        if (progress < 30) return 'Processing documents...'
+        if (progress < 60) return 'Analyzing content...'
+        if (progress < 90) return 'Generating quiz questions...'
+        return 'Finalizing quiz structure...'
       case 'success':
         return 'Quiz generated successfully!'
       case 'error':
         return 'Generation failed'
       default:
-        return 'Ready to generate'
+        return 'Starting generation...'
     }
   }
 
@@ -220,10 +134,12 @@ export function BQCGenerator({
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           {getStatusIcon()}
-          <span>BQC Quiz Generation</span>
+          <span>Quiz Generation</span>
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Generating interactive quiz from: {fileName}
+          Generating interactive quiz
+          {metadata.fileCount && ` from ${metadata.fileCount} document${metadata.fileCount > 1 ? 's' : ''}`}
+          {metadata.questionCount && ` (${metadata.questionCount} questions)`}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -236,18 +152,6 @@ export function BQCGenerator({
           <Progress value={progress} className="w-full" />
         </div>
 
-        {/* Generated Content Preview */}
-        {generatedContent && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-700">Generated Content Preview:</h4>
-            <div className="max-h-64 overflow-y-auto bg-gray-50 rounded-md p-4">
-              <pre className="text-xs whitespace-pre-wrap font-mono">
-                {generatedContent}
-              </pre>
-            </div>
-          </div>
-        )}
-
         {/* Error Display */}
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-md">
@@ -259,25 +163,18 @@ export function BQCGenerator({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex space-x-3">
-          {isGenerating ? (
-            <Button
-              variant="outline"
-              onClick={cancelGeneration}
-              className="text-red-600 border-red-300 hover:bg-red-50"
-            >
-              Cancel Generation
-            </Button>
-          ) : status === 'error' ? (
-            <Button
-              onClick={startGeneration}
-              variant="outline"
-            >
-              Retry Generation
-            </Button>
-          ) : null}
-        </div>
+        {/* Success Message */}
+        {status === 'success' && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+            <div className="flex items-center space-x-2 text-green-800">
+              <CheckCircle className="h-4 w-4" />
+              <span className="font-medium">Quiz Ready!</span>
+            </div>
+            <p className="mt-2 text-sm text-green-700">
+              Your interactive quiz has been generated successfully. Use the topic code above to access it.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
