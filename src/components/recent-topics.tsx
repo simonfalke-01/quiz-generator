@@ -96,7 +96,7 @@ export function RecentTopics({
               <div className="flex items-start justify-between space-x-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-3 mb-2">
-                    <code className="text-sm font-mono font-extrabold text-foreground leading-none mt-2">
+                    <code className="text-base font-mono font-extrabold text-foreground leading-none mt-2">
                       {topic.topicCode}
                     </code>
                     <Button
