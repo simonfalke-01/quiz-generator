@@ -10,6 +10,8 @@ interface BlankInputProps extends Omit<React.ComponentProps<"input">, 'onChange'
   correctAnswers: string[]
   onValidationChange: (blankId: string, isCorrect: boolean) => void
   onCorrectAnswer?: (blankId: string) => void
+  onAnswerChange?: (blankId: string, answer: string) => void
+  storedAnswer?: string
   debounceMs?: number
 }
 
@@ -20,7 +22,9 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
     correctAnswers, 
     onValidationChange, 
     onCorrectAnswer,
-    debounceMs = 300,
+    onAnswerChange,
+    storedAnswer = '',
+    debounceMs = 50,
     ...props 
   }, ref) => {
     // Smart hint system - no hint for single character answers
@@ -35,9 +39,17 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
     }, [correctAnswers])
     
     // Simple state - just what the user types in the input
-    const [userInput, setUserInput] = React.useState('')
+    const [userInput, setUserInput] = React.useState(storedAnswer || '')
     const [hasBeenValidated, setHasBeenValidated] = React.useState(false) 
     const [isRevealed, setIsRevealed] = React.useState(false)
+    
+    // Update local state when stored answer changes
+    React.useEffect(() => {
+      setUserInput(storedAnswer || '')
+      if (storedAnswer) {
+        setHasBeenValidated(true)
+      }
+    }, [storedAnswer])
     const debouncedValue = useDebounce(userInput, debounceMs)
 
     // Handle debounced validation
@@ -73,6 +85,11 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value
       setUserInput(newValue)
+      
+      // Store the answer
+      if (onAnswerChange) {
+        onAnswerChange(blankId, newValue)
+      }
       
       // If input is cleared, reset validation
       if (newValue === '') {

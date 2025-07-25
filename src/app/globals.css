@@ -3,8 +3,8 @@
 
 @theme inline {
   /* Base typography and spacing */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
   
   /* Radius values */
   --radius-sm: calc(0.625rem - 4px);
@@ -39,6 +39,23 @@
   --color-info: oklch(0.488 0.243 264.376);
   --color-info-foreground: oklch(0.985 0 0);
   
+  /* Spacing scale for consistent layouts */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  
+  /* Modern border colors */
+  --color-border-subtle: oklch(0.145 0 0 / 8%);
+  --color-border-muted: oklch(0.145 0 0 / 12%);
+  
   /* Chart colors */
   --color-chart-1: oklch(0.547 0.150 253.164);
   --color-chart-2: oklch(0.535 0.120 192.177);
@@ -54,4 +71,27 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  .space-consistent {
+    @apply space-y-6 md:space-y-8;
+  }
+  
+  .container-modern {
+    @apply max-w-6xl mx-auto px-4 sm:px-6;
+  }
+  
+  .heading-modern {
+    @apply text-foreground font-semibold tracking-tight;
+  }
+  
+  .text-modern {
+    @apply text-muted-foreground leading-relaxed;
+  }
+  
+  .border-subtle {
+    @apply border-border/60;
+  }
+  
 }

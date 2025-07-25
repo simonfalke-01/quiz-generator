@@ -1,5 +1,5 @@
-import { getTopicBySlug, getAllTopicSlugs } from '@/lib/questions'
-import { QuizClient } from '@/components/quiz/quiz-client'
+import { getTopicById } from '@/lib/questions'
+import { TopicTabs } from '@/components/tabs/topic-tabs'
 import { notFound } from 'next/navigation'
 
 interface PageProps {
@@ -8,31 +8,20 @@ interface PageProps {
   }>
 }
 
-export async function generateStaticParams() {
-  const slugs = await getAllTopicSlugs()
-  return slugs.map((slug) => ({
-    slug,
-  }))
-}
-
 export default async function TopicPage({ params }: PageProps) {
-  const { slug } = await params
-  const topicData = await getTopicBySlug(slug)
+  const { slug: topicId } = await params
+  const topicData = await getTopicById(topicId)
 
   if (!topicData) {
     notFound()
   }
 
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <QuizClient topicData={topicData} />
-    </main>
-  )
+  return <TopicTabs topicData={topicData} topicId={topicId} />
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { slug } = await params
-  const topicData = await getTopicBySlug(slug)
+  const { slug: topicId } = await params
+  const topicData = await getTopicById(topicId)
   
   if (!topicData) {
     return {

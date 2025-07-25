@@ -47,6 +47,8 @@ Three supported formats:
 - Double colon :: separates answers from placeholder
 - Placeholder appears as hint text in input field
 - First answer is considered primary
+- **CRITICAL: Each blank must contain ONLY ONE WORD**
+- **For multi-word answers, create separate blanks for each word**
 
 ## Instructions for Content Analysis
 
@@ -143,18 +145,30 @@ Create a balanced mix of question difficulty:
 
 ### 8. BLANK PLACEMENT STRATEGY
 
+**SINGLE-WORD BLANKS ONLY:**
+- Each blank must contain exactly ONE WORD
+- For multi-word terms, create multiple consecutive blanks
+- Example: "cellular respiration" becomes "The {cellular} {respiration} process..."
+- Example: "adenosine triphosphate" becomes "{adenosine} {triphosphate} is the energy currency"
+
 Place blanks on:
-- **Key terminology** that students must learn
-- **Critical numerical values** for memorization
-- **Process steps** that show understanding
+- **Key terminology** that students must learn (one word per blank)
+- **Critical numerical values** for memorization (single numbers only)
+- **Process steps** that show understanding (one word at a time)
 - **Connecting words** that demonstrate relationships
-- **Technical terms** specific to the subject area
+- **Technical terms** specific to the subject area (break into individual words)
 
 Avoid blanking:
 - Common articles (a, an, the)
 - Simple prepositions unless crucial to meaning
 - Words that make the sentence unclear
 - Non-essential descriptive words
+
+**Examples of proper single-word blanking:**
+- CORRECT: "The {mitochondria} are the {powerhouse} of the {cell}."
+- WRONG: "The {mitochondria are the powerhouse} of the cell."
+- CORRECT: "{Cellular} {respiration} occurs in three {stages}."
+- WRONG: "{Cellular respiration} occurs in three stages."
 
 ## Final Output Requirements
 
@@ -166,6 +180,47 @@ Generate a complete BQC file with:
 5. Helpful placeholder text for context
 6. Questions that progressively build understanding
 7. 100% accuracy to the source material
+
+## CRITICAL OUTPUT FORMATTING INSTRUCTIONS
+
+**IMPORTANT**: Your response must contain ONLY the raw BQC file content. Do NOT include:
+- Code fences (backticks ```)
+- Language identifiers (```yaml, ```bqc, etc.)
+- Any explanatory text before or after the BQC content
+- Quotes around the entire content
+- Any additional formatting or markup
+
+**Your entire response must start with the YAML frontmatter (---) and end with the last question.**
+
+**Example of CORRECT output format:**
+```
+---
+slug: sample-topic
+title: "Sample Topic"
+description: "Sample description"
+author: "AI Generated"
+version: "1.0"
+---
+
+§ Section Name
+
+1. This is a sample {question::answer}.
+
+2. Another {question::answer} here.
+```
+
+**WRONG - DO NOT DO THIS:**
+```yaml
+---
+slug: sample-topic
+...
+```
+
+**WRONG - DO NOT DO THIS:**
+Here is your BQC file:
+---
+slug: sample-topic
+...
 
 ## Quality Check
 

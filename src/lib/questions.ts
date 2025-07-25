@@ -1,60 +1,100 @@
 import { Topic } from './types'
-import { parseBQC } from './bqc-parser'
-import { promises as fs } from 'fs'
-import path from 'path'
+import { RedisService } from './redis'
 
 /**
- * Get all available topic slugs for static generation
+ * Get all available topic IDs from Redis
  */
-export async function getAllTopicSlugs(): Promise<string[]> {
+export async function getAllTopicIds(): Promise<string[]> {
   try {
-    const dataDirectory = path.join(process.cwd(), 'data')
-    const files = await fs.readdir(dataDirectory)
-    
-    return files
-      .filter(file => file.endsWith('.bqc'))
-      .map(file => file.replace('.bqc', ''))
+    return await RedisService.getAllTopicIds()
   } catch (error) {
-    console.error('Error reading topic slugs:', error)
+    console.error('Error reading topic IDs from Redis:', error)
     return []
   }
 }
 
 /**
- * Get topic data by slug
+ * Get topic data by ID from Redis
  */
-export async function getTopicBySlug(slug: string): Promise<Topic | null> {
+export async function getTopicById(topicId: string): Promise<Topic | null> {
   try {
-    const filePath = path.join(process.cwd(), 'data', `${slug}.bqc`)
-    const fileContents = await fs.readFile(filePath, 'utf8')
-    const topicData = parseBQC(fileContents)
+    const topicData = await RedisService.getTopic(topicId)
     
-    return topicData
+    if (!topicData || !topicData.bqcJson) {
+      return null
+    }
+
+    // Parse the stored JSON data
+    const parsedTopic = JSON.parse(topicData.bqcJson) as Topic
+    return parsedTopic
   } catch (error) {
-    console.error(`Error loading topic ${slug}:`, error)
+    console.error(`Error loading topic ${topicId}:`, error)
     return null
   }
 }
 
 /**
- * Get all topics with basic metadata
+ * Get topic data with metadata by ID from Redis
  */
-export async function getAllTopics(): Promise<Array<{slug: string, title: string, description: string}>> {
-  const slugs = await getAllTopicSlugs()
+export async function getTopicWithMetadata(topicId: string): Promise<{
+  topic: Topic
+  metadata: Record<string, unknown>
+  bqcRaw: string
+  regenerated: number
+} | null> {
+  try {
+    const topicData = await RedisService.getTopic(topicId)
+    
+    if (!topicData || !topicData.bqcJson) {
+      return null
+    }
+
+    const topic = JSON.parse(topicData.bqcJson) as Topic
+    const metadata = topicData.metadata ? JSON.parse(topicData.metadata) : {}
+
+    return {
+      topic,
+      metadata,
+      bqcRaw: topicData.bqcRaw || '',
+      regenerated: parseInt(topicData.regenerated || '0', 10)
+    }
+  } catch (error) {
+    console.error(`Error loading topic with metadata ${topicId}:`, error)
+    return null
+  }
+}
+
+/**
+ * Get all topics with basic metadata from Redis
+ */
+export async function getAllTopics(): Promise<Array<{
+  id: string
+  slug: string
+  title: string
+  description: string
+  createdAt?: string
+}>> {
+  const topicIds = await getAllTopicIds()
   const topics = []
   
-  for (const slug of slugs) {
-    const topic = await getTopicBySlug(slug)
-    if (topic) {
+  for (const topicId of topicIds) {
+    const topicWithMeta = await getTopicWithMetadata(topicId)
+    if (topicWithMeta) {
       topics.push({
-        slug: topic.slug,
-        title: topic.title,
-        description: topic.description
+        id: topicId,
+        slug: topicId, // For backward compatibility
+        title: topicWithMeta.topic.title,
+        description: topicWithMeta.topic.description,
+        createdAt: topicWithMeta.metadata.createdAt as string
       })
     }
   }
   
-  return topics
+  // Sort by creation date, newest first
+  return topics.sort((a, b) => {
+    if (!a.createdAt || !b.createdAt) return 0
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
 }
 
 /**
@@ -74,4 +114,20 @@ export function getTopicStats(topic: Topic) {
     totalQuestions,
     totalBlanks
   }
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use getTopicById instead
+ */
+export async function getTopicBySlug(slug: string): Promise<Topic | null> {
+  return await getTopicById(slug)
+}
+
+/**
+ * Legacy function for backward compatibility  
+ * @deprecated Use getAllTopicIds instead
+ */
+export async function getAllTopicSlugs(): Promise<string[]> {
+  return await getAllTopicIds()
 }

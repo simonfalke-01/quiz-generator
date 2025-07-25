@@ -1,0 +1,38 @@
+services:
+  quiz-platform:
+    build: .
+    container_name: quiz-platform
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - HOSTNAME=0.0.0.0
+      # Add your environment variables here
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # - AWS_REGION=${AWS_REGION}
+      # - REDIS_URL=${REDIS_URL}
+    volumes:
+      - quiz_data:/app/data
+    networks:
+      - caddy_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "caddy=quiz.localhost"
+      - "caddy.reverse_proxy={{upstreams 8000}}"
+
+volumes:
+  quiz_data:
+    driver: local
+
+networks:
+  caddy_net:
+    external: true

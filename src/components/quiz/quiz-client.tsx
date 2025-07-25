@@ -1,19 +1,28 @@
 'use client'
 
-import React, { useState, useRef, useCallback, useMemo } from 'react'
+import React, { useRef, useCallback, useMemo } from 'react'
 import { Topic } from '@/lib/types'
 import { Question } from './question'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+// Removed Card imports to eliminate card styling
 import { Progress } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
+import { useQuizStorage } from '@/hooks/use-quiz-storage'
 
 interface QuizClientProps {
   topicData: Topic
+  topicId: string
 }
 
-export function QuizClient({ topicData }: QuizClientProps) {
-  // Only track validation results, not raw input values to prevent re-render cascade
-  const [validationResults, setValidationResults] = useState<Record<string, boolean>>({})
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
+export function QuizClient({ topicData, topicId }: QuizClientProps) {
+  const {
+    answers,
+    validationResults,
+    currentSectionIndex,
+    updateAnswer,
+    updateValidation,
+    updateSectionIndex
+  } = useQuizStorage(topicId)
+  
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   // Get all blank IDs in order for auto-focus functionality
@@ -35,21 +44,19 @@ export function QuizClient({ topicData }: QuizClientProps) {
 
   // Only called when validation status changes, not on every keystroke
   const handleValidationChange = useCallback((blankId: string, isCorrect: boolean) => {
-    setValidationResults(prev => ({ ...prev, [blankId]: isCorrect }))
-  }, [])
+    updateValidation(blankId, isCorrect)
+  }, [updateValidation])
 
   const handleCorrectAnswer = useCallback((blankId: string) => {
     // Find the next blank input and focus it
     const currentIndex = allBlankIds.indexOf(blankId)
     if (currentIndex !== -1 && currentIndex < allBlankIds.length - 1) {
       const nextBlankId = allBlankIds[currentIndex + 1]
-      // Use requestAnimationFrame instead of setTimeout for better timing
-      requestAnimationFrame(() => {
-        const nextInput = inputRefs.current[nextBlankId]
-        if (nextInput) {
-          nextInput.focus()
-        }
-      })
+      // Immediate focus for faster auto-tabbing
+      const nextInput = inputRefs.current[nextBlankId]
+      if (nextInput) {
+        nextInput.focus()
+      }
     }
   }, [allBlankIds])
 
@@ -61,83 +68,90 @@ export function QuizClient({ topicData }: QuizClientProps) {
   const currentSection = topicData.sections[currentSectionIndex]
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">{topicData.title}</h1>
-        <p className="text-muted-foreground mb-4">{topicData.description}</p>
-        
-        {/* Progress */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-foreground">
-              Progress: {answeredBlanks} / {totalBlanks} blanks completed
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {Math.round(progressPercentage)}%
-            </span>
+    <div className="h-full flex flex-col">
+      {/* Sticky Progress and Navigation Section */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="max-w-6xl mx-auto w-full px-6 py-4">
+          {/* Progress Section */}
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-foreground">
+                Progress: {answeredBlanks} / {totalBlanks} blanks completed
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {Math.round(progressPercentage)}%
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="w-full" />
           </div>
-          <Progress value={progressPercentage} className="w-full" />
+
+          {/* Section Navigation */}
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+            {topicData.sections.map((section, index) => (
+              <Button
+                key={section.id}
+                onClick={() => updateSectionIndex(index)}
+                variant={index === currentSectionIndex ? "default" : "outline"}
+                size="sm"
+                className={`transition-all duration-200 ${
+                  index === currentSectionIndex 
+                    ? 'min-w-[80px] px-3' 
+                    : 'min-w-[36px] px-2'
+                }`}
+              >
+                {index === currentSectionIndex ? `Section ${index + 1}` : index + 1}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Section Navigation */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2 mb-4 justify-center sm:justify-start">
-          {topicData.sections.map((section, index) => (
-            <button
-              key={section.id}
-              onClick={() => setCurrentSectionIndex(index)}
-              className={`px-3 py-2 text-sm rounded-md transition-colors font-medium ${
-                index === currentSectionIndex
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-sm'
-              }`}
-            >
-              Section {index + 1}
-            </button>
-          ))}
-        </div>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">
+      {/* Scrollable Content */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="max-w-6xl mx-auto w-full px-6 py-6">
+          <div className="mb-3">
+            <h2 className="text-xl font-semibold">
               {currentSection.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {currentSection.questions.map(question => (
-                <Question
-                  key={question.id}
-                  question={question}
-                  onValidationChange={handleValidationChange}
-                  onCorrectAnswer={handleCorrectAnswer}
-                  inputRefs={inputRefs}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            </h2>
+          </div>
+          <div className="space-y-2">
+            {currentSection.questions.map(question => (
+              <Question
+                key={question.id}
+                question={question}
+                onValidationChange={handleValidationChange}
+                onCorrectAnswer={handleCorrectAnswer}
+                onAnswerChange={updateAnswer}
+                answers={answers}
+                inputRefs={inputRefs}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between">
-        <button
-          onClick={() => setCurrentSectionIndex(Math.max(0, currentSectionIndex - 1))}
-          disabled={currentSectionIndex === 0}
-          className="px-6 py-3 bg-secondary text-secondary-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/80 transition-colors font-medium"
-        >
-          ← Previous Section
-        </button>
-        
-        <button
-          onClick={() => setCurrentSectionIndex(Math.min(topicData.sections.length - 1, currentSectionIndex + 1))}
-          disabled={currentSectionIndex === topicData.sections.length - 1}
-          className="px-6 py-3 bg-primary text-primary-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors font-medium"
-        >
-          Next Section →
-        </button>
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+        <div className="max-w-6xl mx-auto w-full p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-between">
+          <Button
+            onClick={() => updateSectionIndex(Math.max(0, currentSectionIndex - 1))}
+            disabled={currentSectionIndex === 0}
+            variant="outline"
+            size="lg"
+          >
+            ← Previous Section
+          </Button>
+          
+          <Button
+            onClick={() => updateSectionIndex(Math.min(topicData.sections.length - 1, currentSectionIndex + 1))}
+            disabled={currentSectionIndex === topicData.sections.length - 1}
+            size="lg"
+          >
+            Next Section →
+          </Button>
+          </div>
+        </div>
       </div>
     </div>
   )
