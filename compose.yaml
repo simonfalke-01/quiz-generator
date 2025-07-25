@@ -1,24 +1,26 @@
 services:
-  quiz-platform:
+  bio-revision:
     build: .
-    container_name: quiz-platform
+    container_name: bio-revision
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       - NODE_ENV=production
       - PORT=8000
       - HOSTNAME=0.0.0.0
-      # Add your environment variables here
-      # - OPENAI_API_KEY=${OPENAI_API_KEY}
-      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      # - AWS_REGION=${AWS_REGION}
-      # - REDIS_URL=${REDIS_URL}
+      # Application-specific environment variables
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
+      - R2_PUBLIC_URL=${R2_PUBLIC_URL}
+      - REDIS_URL=redis://redis:6379
+      - MAX_PDF_SIZE_MB=${MAX_PDF_SIZE_MB}
     volumes:
       - quiz_data:/app/data
     networks:
       - caddy_net
+      - backend_net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
@@ -29,6 +31,15 @@ services:
       - "caddy=quiz.localhost"
       - "caddy.reverse_proxy={{upstreams 8000}}"
 
+  redis:
+    image: redis:7-alpine
+    container_name: bio-revision-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - backend_net
+
 volumes:
   quiz_data:
     driver: local
@@ -36,3 +47,5 @@ volumes:
 networks:
   caddy_net:
     external: true
+  backend_net:
+    driver: bridge
