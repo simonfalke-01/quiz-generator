@@ -1,0 +1,235 @@
+---
+slug: respiration
+title: "Unit 5: Respiration in Humans"
+description: "Comprehensive fill-in-the-blank quiz covering cellular respiration, external respiration, and effects of tobacco smoke"
+author: "Biology Department"
+version: "1.0"
+---
+
+§ Cellular Respiration Basics [#sec-cellular-basics]
+
+1. Cellular respiration involves a series of {catabolic::reaction type} reactions that break down nutrients to release energy.
+
+2. {Anabolic::reaction type} reactions form complex molecules from simpler molecules and require energy.
+
+3. {Catabolic::reaction type} reactions break down complex molecules into simpler molecules and release energy.
+
+4. Aerobic respiration is the release of {large::amount} amount of energy by the breakdown of glucose in the presence of {oxygen|O₂::gas}.
+
+5. The word equation for aerobic respiration is: Glucose + {Oxygen::reactant} → {Carbon dioxide::product} + {Water::product} + Energy
+
+6. The chemical equation for aerobic respiration is: C₆H₁₂O₆ + {6O₂::reactant} → {6CO₂::product} + {6H₂O::product} + ATP
+
+7. Energy released during respiration is stored temporarily in {ATP::molecule}, the universal energy currency.
+
+8. ATP stands for {Adenosine Tri-Phosphate::full name}.
+
+9. ADP stands for {Adenosine Di-Phosphate::full name}.
+
+10. Energy is stored in the high energy {phosphate::type of} bond of ATP.
+
+§ Uses of Energy in the Body [#sec-energy-uses]
+
+11. Energy from ATP is used for {anabolic::type of} reactions such as synthesis of proteins from amino acids.
+
+12. {Active transport::process} is the movement of substances against a concentration gradient and requires energy.
+
+13. Energy is needed for muscular contractions including {breathing::example}, heartbeat, and shivering.
+
+14. Shivering generates {heat::what} to maintain constant body temperature.
+
+§ Mitochondria Structure and Function [#sec-mitochondria]
+
+15. Aerobic respiration takes place in the {cytoplasm::location} and {mitochondria::organelle}.
+
+16. Mitochondria have a {double::how many} membrane structure.
+
+17. The outer mitochondrial membrane is {smooth::texture}.
+
+18. The inner mitochondrial membrane is highly {in-folded|folded::structure} to form {cristae::structures}.
+
+19. The folding of the inner membrane increases {surface area::what} to contain more enzymes for ATP synthesis.
+
+20. The {matrix::region} contains metabolites, enzymes and mitochondrial DNA.
+
+21. Cells that are metabolically active have {many::number} mitochondria to release large amounts of energy.
+
+22. {Muscle::type of} cells have many mitochondria because they require large amounts of energy for contraction.
+
+§ Anaerobic Respiration [#sec-anaerobic]
+
+23. Anaerobic respiration is the breakdown of glucose in the {absence::condition} of oxygen.
+
+24. Anaerobic respiration releases a {small::amount} amount of energy compared to aerobic respiration.
+
+25. In humans, anaerobic respiration produces {lactic acid::product} as the main product.
+
+26. The word equation for anaerobic respiration in humans is: Glucose → {Lactic acid::product} + Energy
+
+27. Anaerobic respiration in humans takes place only in the {cytoplasm::location}.
+
+28. During high intensity exercise, {insufficient::amount} oxygen is transported to muscles.
+
+29. Anaerobic respiration typically produces {2::number} ATP molecules compared to 30-32 from aerobic respiration.
+
+30. In humans, anaerobic respiration occurs mainly in {skeletal::type of} muscles during vigorous exercise.
+
+§ Lactic Acid and Oxygen Debt [#sec-lactic-acid]
+
+31. Lactic acid buildup in muscles may lead to {lactic acidosis::condition}, which affects enzyme activity.
+
+32. Muscle fatigue is actually caused by small {tears::damage} in muscle tissue, not lactic acid buildup.
+
+33. Lactic acid is transported in blood plasma to the {liver::organ}.
+
+34. In the liver, some lactic acid is {oxidised::process} and goes through aerobic respiration.
+
+35. Most lactic acid is converted back to {glucose::sugar} and stored as {glycogen::storage form}.
+
+36. {Oxygen debt::term} is the amount of oxygen required to remove lactic acid after exercise.
+
+37. Oxygen debt may last up to {38::number} hours after strenuous exercise.
+
+§ Respiration in Yeast [#sec-yeast]
+
+38. Yeast are {facultative::type of} anaerobes that can switch between aerobic and anaerobic respiration.
+
+39. Anaerobic respiration in yeast is also called {alcohol fermentation::process name}.
+
+40. In yeast, anaerobic respiration produces {ethanol::alcohol} and {carbon dioxide::gas}.
+
+41. The process of yeast fermentation is used by humans in making {wine::beverage} and {bread::food}.
+
+§ Respiratory System Structure [#sec-respiratory-structure]
+
+42. Air enters the respiratory system through the external {nostrils|nostril::opening}.
+
+43. The nostrils lead to {nasal passages::structures} lined with moist mucous membrane.
+
+44. The {pharynx::structure} carries food to the esophagus and air to the larynx.
+
+45. The {epiglottis::structure} prevents food from entering the larynx.
+
+46. The {larynx::structure} is also called the voice box and contains vocal cords.
+
+47. The {trachea::structure} is supported by C-shaped rings of {cartilage::material}.
+
+48. The trachea divides into two {bronchi::structures}, one for each lung.
+
+49. Each bronchus branches into smaller {bronchioles::structures}.
+
+50. Each bronchiole ends in a cluster of {alveoli::structures} where gas exchange occurs.
+
+§ Alveoli and Gas Exchange [#sec-gas-exchange]
+
+51. Gas exchange occurs between air and blood at the {alveoli|alveolus::structures}.
+
+52. A typical pair of human lungs contain about {700 million::number} alveoli.
+
+53. The total surface area of adult human lungs is about {50-75::range} square meters.
+
+54. Alveolar walls are only {one::number} cell thick, creating a short diffusion distance.
+
+55. The walls of alveoli and capillaries together create a {short::length} diffusion path.
+
+56. {Many::number} alveoli provide a large {surface area::feature} for gas exchange.
+
+57. A {dense::type of} capillary network surrounds each alveolus.
+
+58. A thin film of {moisture::liquid} on alveolar surfaces allows oxygen to dissolve.
+
+§ Factors Affecting Diffusion Rate [#sec-diffusion-factors]
+
+59. The rate of diffusion depends on {surface area::factor}, concentration gradient, and diffusion distance.
+
+60. {Continuous::type of} blood flow maintains the concentration gradient for gas exchange.
+
+61. {Continuous::type of} ventilation (breathing) maintains the concentration gradient.
+
+62. Air entering lungs has {high::level} oxygen concentration and {low::level} carbon dioxide concentration.
+
+63. Blood entering lungs has {high::level} carbon dioxide concentration and {low::level} oxygen concentration.
+
+§ Oxygen Transport [#sec-oxygen-transport]
+
+64. More than {99::percentage}% of oxygen is transported bound to {haemoglobin::protein} in red blood cells.
+
+65. Less than {1::percentage}% of oxygen dissolves directly in blood plasma.
+
+66. Haemoglobin consists of {4::number} globular protein subunits.
+
+67. Each haemoglobin molecule can bind to {4::number} oxygen molecules.
+
+68. Each subunit contains a {heme::group} group with an iron atom at the center.
+
+69. When haemoglobin binds oxygen, it forms {oxyhaemoglobin::compound}.
+
+70. {Myoglobin::protein} is the main respiratory pigment in skeletal muscle cells.
+
+71. Myoglobin has a {higher::comparison} affinity for oxygen than haemoglobin.
+
+§ Carbon Dioxide Transport [#sec-co2-transport]
+
+72. Carbon dioxide is transported in blood in {three::number} main forms.
+
+73. Some CO₂ dissolves in blood {plasma::component} as it is 20 times more soluble than oxygen.
+
+74. CO₂ can bind to amino groups in haemoglobin to form {carbaminohaemoglobin::compound}.
+
+75. The main form of CO₂ transport is as {bicarbonate::ion} ions in plasma.
+
+76. {Carbonic anhydrase::enzyme} catalyzes the reaction between CO₂ and water in red blood cells.
+
+§ Breathing Mechanism [#sec-breathing]
+
+77. {Inspiration::process} is when air is forced into the lungs.
+
+78. {Expiration::process} is when air is forced out of the lungs.
+
+79. The {diaphragm::muscle} is a dome-shaped sheet of muscle separating thoracic and abdominal cavities.
+
+80. {External::type of} intercostal muscles and {internal::type of} intercostal muscles are antagonistic.
+
+81. During inspiration, the diaphragm muscle {contracts::action} and flattens downwards.
+
+82. During inspiration, external intercostal muscles {contract::action} while internal intercostal muscles {relax::action}.
+
+83. Air moves down a {pressure::type of} gradient from high pressure to low pressure.
+
+84. Humans use {negative::type of} pressure breathing by decreasing lung pressure.
+
+85. According to {Boyle's::scientist} law, pressure and volume are inversely related.
+
+§ Control of Breathing [#sec-breathing-control]
+
+86. Breathing rate is controlled by the {respiratory centre::structure} in the brain.
+
+87. The main stimulus for breathing is the level of {carbon dioxide::gas} in the blood.
+
+88. Increase in CO₂ concentration results in {decrease::change} in blood pH.
+
+89. Changes in {oxygen::gas} concentration do not normally affect breathing rate unless very low.
+
+90. The control center in the {medulla::brain region} sets the basic breathing rhythm.
+
+§ Effects of Tobacco Smoke [#sec-tobacco]
+
+91. Tobacco smoke contains more than {4000::number} chemicals, most of which are harmful.
+
+92. {Carbon monoxide::gas} is a colourless, odourless gas with high affinity for haemoglobin.
+
+93. Carbon monoxide binds {irreversibly::how} to haemoglobin to form {carboxyhaemoglobin::compound}.
+
+94. {Nicotine::chemical} is highly addictive and stimulates release of adrenaline.
+
+95. Nicotine causes {vasoconstriction::effect} of arterioles and increases heart rate and blood pressure.
+
+96. {Tar::substance} is a sticky, brown carcinogen that increases DNA mutation rates.
+
+97. {85::percentage}% of lung cancers are caused by smoking.
+
+98. {Chronic bronchitis::condition} is characterized by narrowing of airways due to excess mucus and inflammation.
+
+99. {Emphysema::condition} involves breakdown of partition walls between alveoli, decreasing surface area.
+
+100. {COPD::acronym} stands for Chronic Obstructive Pulmonary Disease.

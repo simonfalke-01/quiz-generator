@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Hover Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .input-container { margin: 20px 0; }
+        input { padding: 5px; margin-right: 10px; }
+        button { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Test Hover Functionality</h1>
+    
+    <div class="input-container">
+        <label>Question 1: Cellular respiration involves a series of </label>
+        <input type="text" id="input1" placeholder="reaction type" style="padding-left: 20px;">
+        <span style="position: absolute; margin-left: -120px; margin-top: 8px; color: #666;">c</span>
+        <button id="hover1" onmouseenter="showAnswer(1)" onmouseleave="hideAnswer(1)">?</button>
+    </div>
+
+    <div class="input-container">
+        <label>Question 2: </label>
+        <input type="text" id="input2" placeholder="reaction type" style="padding-left: 20px;">
+        <span style="position: absolute; margin-left: -120px; margin-top: 8px; color: #666;">a</span>
+        <button id="hover2" onmouseenter="showAnswer(2)" onmouseleave="hideAnswer(2)">?</button>
+    </div>
+
+    <script>
+        const answers = {
+            1: "catabolic",
+            2: "Anabolic"
+        };
+
+        function showAnswer(questionNum) {
+            const input = document.getElementById(`input${questionNum}`);
+            const answer = answers[questionNum];
+            // Show answer without first letter since hint is already visible
+            input.value = answer.slice(1);
+            input.readOnly = true;
+            console.log(`Showing answer for Q${questionNum}: "${answer}" -> displaying "${answer.slice(1)}"`);
+        }
+
+        function hideAnswer(questionNum) {
+            const input = document.getElementById(`input${questionNum}`);
+            input.value = "";
+            input.readOnly = false;
+            console.log(`Hiding answer for Q${questionNum}`);
+        }
+    </script>
+</body>
+</html>
