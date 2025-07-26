@@ -17,8 +17,8 @@ export function UploadPage() {
   
   const [step, setStep] = useState<UploadStep>("select");
   const [files, setFiles] = useState<File[]>([]);
-  const [questionCount, setQuestionCount] = useState(100);
-  const [questionCountInput, setQuestionCountInput] = useState("100");
+  const [questionCount, setQuestionCount] = useState(35);
+  const [questionCountInput, setQuestionCountInput] = useState("35");
   const [generatedTopicCode, setGeneratedTopicCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,8 +66,8 @@ export function UploadPage() {
   const handleStartOver = () => {
     setStep("select");
     setFiles([]);
-    setQuestionCount(100);
-    setQuestionCountInput("100");
+    setQuestionCount(35);
+    setQuestionCountInput("35");
     setGeneratedTopicCode(null);
     setError(null);
   };
@@ -82,7 +82,7 @@ export function UploadPage() {
     
     // Update the actual value if it's a valid number
     const value = parseInt(input);
-    if (!isNaN(value) && value >= 10 && value <= 500) {
+    if (!isNaN(value) && value >= 10 && value <= 300) {
       setQuestionCount(value);
     }
   };
@@ -90,11 +90,11 @@ export function UploadPage() {
   const handleQuestionCountBlur = () => {
     const value = parseInt(questionCountInput);
     if (isNaN(value) || value < 10) {
-      setQuestionCount(100);
-      setQuestionCountInput("100");
-    } else if (value > 500) {
-      setQuestionCount(500);
-      setQuestionCountInput("500");
+      setQuestionCount(35);
+      setQuestionCountInput("35");
+    } else if (value > 300) {
+      setQuestionCount(300);
+      setQuestionCountInput("300");
     }
   };
 
@@ -147,7 +147,7 @@ export function UploadPage() {
                       id="question-count"
                       type="number"
                       min="10"
-                      max="500"
+                      max="300"
                       value={questionCountInput}
                       onChange={handleQuestionCountChange}
                       onBlur={handleQuestionCountBlur}
