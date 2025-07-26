@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useDebounce } from "@/hooks/use-debounce"
-import { getValidationStatus } from "@/lib/validation"
+import { getValidationStatus, normalizeAnswer } from "@/lib/validation"
 
 interface BlankInputProps extends Omit<React.ComponentProps<"input">, 'onChange' | 'value'> {
   blankId: string
@@ -38,7 +38,7 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
       return firstAnswer.charAt(0).toLowerCase()
     }, [correctAnswers])
     
-    // Simple state - just what the user types in the input
+    // Enhanced state management for smooth animations
     const [userInput, setUserInput] = React.useState(storedAnswer || '')
     const [hasBeenValidated, setHasBeenValidated] = React.useState(false) 
     const [isRevealed, setIsRevealed] = React.useState(false)
@@ -50,9 +50,10 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
         setHasBeenValidated(true)
       }
     }, [storedAnswer])
+    
     const debouncedValue = useDebounce(userInput, debounceMs)
 
-    // Handle debounced validation
+    // Handle debounced validation with enhanced logic
     React.useEffect(() => {
       // Do not run validation logic when the answer is being revealed
       if (isRevealed) {
@@ -61,12 +62,12 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
 
       if (debouncedValue !== '') {
         setHasBeenValidated(true)
-        const fullAnswer = hint + debouncedValue
         
-        const validationStatus = getValidationStatus(fullAnswer, correctAnswers, true)
+        // Use enhanced validation that handles both partial and complete words
+        const validationStatus = getValidationStatus(debouncedValue, correctAnswers, true, hint)
         const isCorrect = validationStatus === 'correct'
         
-        // Only notify parent of validation result, not raw input value
+        // Only notify parent of validation result
         onValidationChange(blankId, isCorrect)
         
         if (isCorrect && onCorrectAnswer) {
@@ -78,9 +79,8 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
       }
     }, [debouncedValue, hint, correctAnswers, onValidationChange, onCorrectAnswer, isRevealed, blankId])
 
-    // For validation display, combine hint + user input
-    const fullAnswer = hint + userInput
-    const validationStatus = getValidationStatus(fullAnswer, correctAnswers, hasBeenValidated)
+    // Get validation status for UI styling
+    const validationStatus = getValidationStatus(userInput, correctAnswers, hasBeenValidated, hint)
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value
@@ -97,19 +97,48 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
       }
     }
 
+    const handleFocus = () => {
+      // Reset incorrect state on focus for better UX
+      if (validationStatus === 'incorrect') {
+        setHasBeenValidated(false)
+      }
+    }
+
+    const handleBlur = () => {
+      if (userInput.trim() !== '') {
+        setHasBeenValidated(true)
+        
+        // Check if user typed complete word and normalize it
+        if (hint && correctAnswers.length > 0) {
+          const normalizedInput = normalizeAnswer(userInput, hint, correctAnswers)
+          if (normalizedInput !== userInput) {
+            // User typed complete word - normalize it for smooth animation
+            setUserInput(normalizedInput)
+            if (onAnswerChange) {
+              onAnswerChange(blankId, normalizedInput)
+            }
+          }
+        }
+      }
+    }
+
     return (
       <div className="inline-flex items-center mx-1 gap-1">
-        {/* Input wrapper with visual hint overlay */}
-        <div className="relative">
-          {/* Visual hint letter overlay - only show if hint exists */}
+        {/* Input wrapper with fixed positioning */}
+        <div className="relative group">
+          {/* Visual hint letter overlay with smooth positioning */}
           {hint && (
-            <span 
+            <span
               className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium pointer-events-none select-none z-10",
+                "absolute top-1/2 -translate-y-1/2 pointer-events-none select-none z-10 transition-all duration-300 ease-in-out",
+                // Match input text styling exactly
+                "text-sm md:text-base font-normal",
+                // Perfect alignment using transforms
+                "left-6 -translate-x-full peer-focus:-translate-x-[calc(100%+4px)]",
                 {
+                  // Force hint to ALWAYS be black when correct or incorrect, override any background color
                   "text-muted-foreground": validationStatus === "unchecked",
-                  "text-success-foreground": validationStatus === "correct", 
-                  "text-destructive-foreground": validationStatus === "incorrect",
+                  "!text-black": validationStatus === "correct" || validationStatus === "incorrect",
                 }
               )}
               aria-hidden="true"
@@ -118,12 +147,14 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
             </span>
           )}
           
-          {/* Standard input with conditional left padding for hint */}
+          {/* Input with FIXED padding - text never moves */}
           <input
             ref={ref}
             type="text"
             className={cn(
-              `w-36 sm:w-40 h-10 md:h-9 ${hint ? 'pl-6' : 'pl-3'} pr-3 py-2 text-sm md:text-base border rounded-md bg-background transition-all duration-300 outline-none`,
+              "peer w-36 sm:w-40 h-10 md:h-9 pr-3 py-2 text-sm md:text-base border rounded-md bg-background outline-none transition-all duration-300 ease-in-out",
+              // FIXED padding - input text position never changes
+              hint ? "pl-6" : "pl-3", // 24px when hint exists, 12px when no hint
               {
                 "border-input focus:ring-2 focus:ring-ring focus:border-ring": validationStatus === "unchecked",
                 "border-success bg-success/10 focus:ring-2 focus:ring-success": validationStatus === "correct",
@@ -134,6 +165,7 @@ export const BlankInput = React.forwardRef<HTMLInputElement, BlankInputProps>(
             value={isRevealed ? (hint ? correctAnswers[0].slice(1) : correctAnswers[0]) : userInput}
             readOnly={isRevealed}
             onChange={handleInputChange}
+            onBlur={handleBlur}
             aria-label={hint ? `Fill in the blank, starts with ${hint}` : "Fill in the blank"}
             inputMode="text"
             autoComplete="off"
