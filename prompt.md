@@ -102,13 +102,16 @@ Prioritize content that typically appears on exams:
 - **Cause/Effect**: Relationships between events/conditions
 - **Applications**: Real-world examples and uses
 
-**Keywords Selection Strategy:**
-- Choose words that are **essential** to understanding the concept
-- Select **technical terminology** specific to the subject
-- Include **quantitative values** that students must memorize
-- Focus on **connecting words** that show relationships
-- Pick **process verbs** that describe what happens
-- Select **descriptive adjectives** that are scientifically precise
+**Keywords Selection Strategy - BE AGGRESSIVE:**
+- **MANDATORY**: Blank out ALL technical terminology specific to the subject - no exceptions
+- **MANDATORY**: Blank out ALL key concepts, definitions, and scientific terms
+- **MANDATORY**: Blank out ALL quantitative values that students must memorize  
+- **MANDATORY**: Blank out ALL process verbs that describe mechanisms or actions
+- **MANDATORY**: Blank out ALL descriptive adjectives that are scientifically precise
+- **MANDATORY**: Blank out ALL connecting words that show important relationships
+- **MANDATORY**: Blank out ALL proper nouns (names of scientists, locations, species, etc.)
+- **MANDATORY**: When in doubt, BLANK IT OUT - err on the side of creating MORE blanks, not fewer
+- **CRITICAL**: If a word is important for understanding the subject matter, it MUST be blanked
 
 ### 5. ACCURACY REQUIREMENTS
 
@@ -145,30 +148,60 @@ Create a balanced mix of question difficulty:
 
 ### 8. BLANK PLACEMENT STRATEGY
 
+**CRITICAL EMPHASIS: CREATE MORE BLANKS, NOT FEWER!**
+**The #1 priority is ensuring ALL important keywords are blanked out for student practice.**
+
 **SINGLE-WORD BLANKS ONLY:**
 - Each blank must contain exactly ONE WORD
 - For multi-word terms, create multiple consecutive blanks
 - Example: "cellular respiration" becomes "The {cellular} {respiration} process..."
 - Example: "adenosine triphosphate" becomes "{adenosine} {triphosphate} is the energy currency"
 
-Place blanks on:
-- **Key terminology** that students must learn (one word per blank)
-- **Critical numerical values** for memorization (single numbers only)
-- **Process steps** that show understanding (one word at a time)
-- **Connecting words** that demonstrate relationships
-- **Technical terms** specific to the subject area (break into individual words)
+**CORE PRINCIPLE: If a word is subject-specific, technical, or important for understanding - it MUST be blanked. No exceptions.**
 
-Avoid blanking:
-- Common articles (a, an, the)
-- Simple prepositions unless crucial to meaning
-- Words that make the sentence unclear
-- Non-essential descriptive words
+**AGGRESSIVE BLANKING STRATEGY - BLANK MORE, NOT LESS:**
 
-**Examples of proper single-word blanking:**
-- CORRECT: "The {mitochondria} are the {powerhouse} of the {cell}."
-- WRONG: "The {mitochondria are the powerhouse} of the cell."
-- CORRECT: "{Cellular} {respiration} occurs in three {stages}."
-- WRONG: "{Cellular respiration} occurs in three stages."
+**ALWAYS blank these (one word per blank):**
+- **ALL technical terminology** that students must learn - every single one
+- **ALL key concepts and definitions** - no exceptions
+- **ALL numerical values** for memorization (single numbers only)
+- **ALL process steps** that show understanding (one word at a time)
+- **ALL connecting words** that demonstrate relationships
+- **ALL proper nouns** (names, places, species, etc.)
+- **ALL adjectives** that are scientifically important
+- **ALL subject-specific verbs** and action words
+- **ALL units of measurement** and scientific notation
+- **ALL comparative terms** (more, less, higher, lower, etc.)
+
+**Only avoid blanking these minimal words:**
+- Basic articles (a, an, the) - but only if they don't affect meaning
+- Simple conjunctions (and, or, but) - unless they're scientifically important
+- Very common prepositions (in, on, at) - unless they indicate location/process
+
+**CRITICAL RULE: When deciding whether to blank a word, ask "Would a student studying this subject need to know this specific word?" If YES, then BLANK IT.**
+
+**Examples of AGGRESSIVE single-word blanking:**
+- AGGRESSIVE: "The {mitochondria} are the {powerhouse} of the {cell} and {produce} {ATP} through {cellular} {respiration}."
+- TOO CONSERVATIVE: "The {mitochondria} are the powerhouse of the cell and produce ATP through cellular respiration."
+- AGGRESSIVE: "{DNA} {replication} occurs during the {S} {phase} of the {cell} {cycle} in {eukaryotic} {cells}."
+- TOO CONSERVATIVE: "{DNA} replication occurs during the S phase of the cell cycle in eukaryotic cells."
+- AGGRESSIVE: "{Photosynthesis} {converts} {carbon} {dioxide} and {water} into {glucose} using {light} {energy} in {chloroplasts}."
+- TOO CONSERVATIVE: "{Photosynthesis} converts carbon dioxide and water into glucose using light energy in chloroplasts."
+
+**REMEMBER: More blanks = better learning. Students should have to recall most important words, not just a few.**
+
+### 9. FINAL BLANKING VERIFICATION
+
+**Before submitting your quiz, verify that you have aggressively blanked out keywords:**
+- [ ] Every technical term specific to the subject is blanked
+- [ ] Every scientific concept and definition is blanked  
+- [ ] Every number, measurement, and unit is blanked
+- [ ] Every process step and action verb is blanked
+- [ ] Every proper noun (names, places, species) is blanked
+- [ ] Every scientifically important adjective is blanked
+- [ ] When you read a sentence, most of the "important" words should be blanks
+
+**RED FLAG**: If you can read a sentence and understand the key concept WITHOUT filling in the blanks, you haven't blanked enough words. Go back and blank more aggressively.
 
 ## Final Output Requirements
 
