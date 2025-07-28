@@ -35,13 +35,31 @@ services:
     image: redis:7-alpine
     container_name: bio-revision-redis
     restart: unless-stopped
+    volumes:
+      - redis_data:/data
     ports:
       - "6379:6379"
     networks:
       - backend_net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    command: [
+      "redis-server",
+      "--maxmemory", "400mb",
+      "--maxmemory-policy", "noeviction",
+      "--save", "900", "1",
+      "--save", "300", "10", 
+      "--save", "60", "10000"
+    ]
 
 volumes:
   quiz_data:
+    driver: local
+  redis_data:
     driver: local
 
 networks:
